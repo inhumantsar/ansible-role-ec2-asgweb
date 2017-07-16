@@ -1,0 +1,104 @@
+---
+
+# commissioning block
+- block:
+  - name: Create VPC with ec2-vpc role if create_vpc == True
+    include_role:
+      name: inhumantsar.ec2-vpc
+
+  - debug: var=vpc_id
+
+  - name: Create instance security group
+    ec2_group:
+      name: "{{ ec2_cluster_name }}_{{ service_env }}_instances"
+      vpc_id: "{{ vpc_id }}"  # this comes from ec2-vpc
+      region: "{{vpc_region }}"
+      rules: "{{ instance_sg_rules }}"
+      description: "some desc"
+    register: sg
+
+  - debug: var=sg
+
+  - name: Store security group ID
+    set_fact:
+      instance_sg_id: "{{ sg.group_id }}"
+
+  - name: Create EC2 keypair if it doesn't already exist
+    ec2_key:
+      name: "{{ ec2_key_name }}"
+      region: "{{ vpc_region }}"
+    when: "manage_ec2_keypair == true"
+
+  - name: Create launch config
+    ec2_lc:
+      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      image_id: "{{ ec2_ami }}"
+      key_name: "{{ ec2_key_name }}"
+      region: "{{ vpc_region }}"
+      security_groups: "{{ instance_sg_id }}"
+      instance_type: "{{ ec2_instance_type }}"
+    register: lc
+
+  - name: Create autoscaling group
+    ec2_asg:
+      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      launch_config_name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      health_check_period: "{{ asg_health_check_period }}"
+      health_check_type: "{{ asg_health_check_type }}"
+      replace_all_instances: yes
+      max_size: "{{ asg_max_size }}"
+      min_size: "{{ asg_min_size }}"
+      desired_capacity: "{{ asg_desired_capacity }}"
+      region: "{{ vpc_region }}"
+    register: asg
+  when: "service_state != 'absent'"
+
+# decommissioning block
+- block:
+  - name: Get VPC ID for teardown
+    ec2_vpc_net_facts:
+      region: "{{ vpc_region }}"
+      filters:
+        "tag:Name": "{{ vpc_name }}_{{ service_env }}"
+    register: vpcs
+
+  - debug: var=vpcs
+
+  - name: Set vpc_id fact from VPC information
+    set_fact:
+      vpc_id: "{{ vpcs.vpcs[0].id }}"
+
+  - name: Delete autoscaling group
+    ec2_asg:
+      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      region: "{{ vpc_region }}"
+      state: "{{ service_state }}"
+    register: asg
+
+  - name: Delete launch config
+    ec2_lc:
+      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      region: "{{ vpc_region }}"
+      image_id: "{{ ec2_ami }}"
+      state: "{{ service_state }}"
+
+  - name: Delete EC2 keypair
+    ec2_key:
+      name: "{{ ec2_key_name }}"
+      region: "{{ vpc_region }}"
+      state: "{{ service_state }}"
+    when: "manage_ec2_keypair == true"
+
+  - name: Delete instance security group
+    ec2_group:
+      name: "{{ ec2_cluster_name }}_{{ service_env }}_instances"
+      vpc_id: "{{ vpc_id }}"  # this comes from ec2-vpc
+      region: "{{ vpc_region }}"
+      state: "{{ service_state }}"
+
+  - name: Delete VPC
+    include_role:
+      name: inhumantsar.ec2-vpc
+      vars:
+        service_state: "{{ service_state }}"
+  when: "service_state == 'absent'"
