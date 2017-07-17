@@ -2,10 +2,14 @@
 service_env: 'dev'
 service_state: 'present'
 
-# ec2-vpc
-vpc_name: 'asgwebtest'
 vpc_cidr:  &vpc_cidr '10.1.0.0/16' # note the yaml anchor for reuse
 vpc_region: 'us-east-1'
+
+manage_vpc: true
+vpc_id: ''                        # must be set when manage_vpc == false
+vpc_public_subnets: []            #            ^ ditto ^
+### only required when also managing vpc w/ this role
+vpc_name: 'asgwebtest'
 vpc_public_subnet_cidrs:
   - '10.1.1.0/24'
   - '10.1.2.0/24'
@@ -14,13 +18,13 @@ vpc_public_subnet_azs:
   '10.1.2.0/24': 'b'
 ###
 
-manage_ec2_keypair: true           # set to false to prevent create/delete of key
-
 ec2_cluster_name: 'asgwebtest'
 ec2_ami: 'ami-b63769a1'            # RHEL 7.3 in us-east-1
-ec2_key_name: 'default'            # this has to be set
 ec2_instance_type: 't2.micro'
 ec2_assign_public_ip: 'yes'
+
+manage_ec2_keypair: true           # set to false to prevent create/delete of key
+ec2_key_name: 'asgwebtest'
 
 asg_health_check_period: 60
 asg_health_check_type: 'ELB'
@@ -28,27 +32,29 @@ asg_max_size: 1
 asg_min_size: 1
 asg_desired_capacity: 1
 
+# note that these certs are stored in IAM
+manage_cert: true                 # creates a new ssl certificate for the elb if true
+elb_cert_domain: 'example.com'    # common name, used only when generating certs
+elb_cert_arn: ''                  # must be set if manage_cert == false
+elb_host_port: &host_port 80
+
+elb_health_check:
+  ping_protocol: tcp
+  ping_port: *host_port
+  # ping_path: "/" # only required for http/https
+  response_timeout: 5
+  interval: 30
+  unhealthy_threshold: 2
+  healthy_threshold: 10
+
+
 # security group rules
 instance_sg_rules:
   - proto: tcp
-    from_port: 80
-    to_port: 80
+    from_port: *host_port
+    to_port:  *host_port
     cidr_ip: *vpc_cidr
   - proto: tcp
     from_port: 22
     to_port: 22
     cidr_ip: *vpc_cidr
-  - proto: tcp
-    from_port: 443
-    to_port: 443
-    cidr_ip: *vpc_cidr
-
-elb_sg_rules:
-  - proto: tcps
-    from_port: 80
-    to_port: 80
-    cidr_ip: 0.0.0.0/0
-  - proto: tcp
-    from_port: 443
-    to_port: 443
-    cidr_ip: 0.0.0.0/0
