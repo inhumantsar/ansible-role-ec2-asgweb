@@ -1,0 +1,2 @@
+- src: inhumantsar.ec2-vpc    # if managing vpc as well
+- src: jdauphant.ssl-certs    # if managing self-signed certs
