@@ -40,6 +40,12 @@ elb_cert_domain: 'example.com'    # common name, used only when generating certs
 elb_cert_arn: ''                  # must be set if manage_cert == false
 elb_host_port: '{{ec2_host_port}}'
 
+ssl_certs_common_name: "{{ elb_cert_domain }}"
+ssl_certs_path: "/tmp"
+ssl_certs_path_owner: "root"
+ssl_certs_path_group: "root"
+
+
 elb_health_check:
   ping_protocol: tcp
   ping_port: '{{ec2_host_port}}'
