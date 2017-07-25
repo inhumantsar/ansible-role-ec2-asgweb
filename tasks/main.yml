@@ -96,6 +96,7 @@
           instance_port: "{{ elb_host_port }}"
           ssl_certificate_id: "{{ elb_cert_arn }}"
     register: lb
+    when: manage_elb
 
   # - debug: var=lb
 

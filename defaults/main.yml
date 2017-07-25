@@ -2,7 +2,7 @@
 service_env: 'dev'
 service_state: 'present'
 
-vpc_cidr:  &vpc_cidr '10.1.0.0/16' # note the yaml anchor for reuse
+vpc_cidr: '10.1.0.0/16'
 vpc_region: 'us-east-1'
 
 manage_vpc: true
@@ -33,28 +33,28 @@ asg_min_size: 1
 asg_desired_capacity: 1
 
 # note that these certs are stored in IAM
+manage_elb: true  
 manage_cert: true                 # creates a new ssl certificate for the elb if true
 elb_cert_domain: 'example.com'    # common name, used only when generating certs
 elb_cert_arn: ''                  # must be set if manage_cert == false
-elb_host_port: &host_port 80
+elb_host_port: 80
 
 elb_health_check:
   ping_protocol: tcp
-  ping_port: *host_port
+  ping_port: '{{host_port}}'
   # ping_path: "/" # only required for http/https
   response_timeout: 5
   interval: 30
   unhealthy_threshold: 2
   healthy_threshold: 10
 
-
 # security group rules
 instance_sg_rules:
   - proto: tcp
-    from_port: *host_port
-    to_port:  *host_port
-    cidr_ip: *vpc_cidr
+    from_port: '{{host_port}}'
+    to_port:  '{{host_port}}'
+    cidr_ip: '{{vpc_cidr}}'
   - proto: tcp
     from_port: 22
     to_port: 22
-    cidr_ip: *vpc_cidr
+    cidr_ip: '{{vpc_cidr}}'
