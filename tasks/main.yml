@@ -117,7 +117,7 @@
       vpc_zone_identifier: "{{ vpc_public_subnets }}"
     register: asg
 
-  when: "service_state != 'absent'"
+  when: "asgweb_service_state != 'absent'"
 
 
 ##########################################
@@ -142,7 +142,7 @@
       module: ec2_asg
       name: "{{ ec2_cluster_name }}_{{ service_env }}"
       region: "{{ vpc_region }}"
-      state: "{{ service_state }}"
+      state: "{{ asgweb_service_state }}"
     register: asg
 
   - name: Delete load balancer
@@ -150,7 +150,7 @@
       module: ec2_elb_lb
       name: "{{ ec2_cluster_name }}-{{ service_env }}" # ELBs can't have underscores
       region: "{{ vpc_region }}"
-      state: "{{ service_state }}"
+      state: "{{ asgweb_service_state }}"
 
   - name: Delete launch config
     local_action:
@@ -158,14 +158,14 @@
       name: "{{ ec2_cluster_name }}_{{ service_env }}"
       region: "{{ vpc_region }}"
       image_id: "{{ ec2_ami }}"
-      state: "{{ service_state }}"
+      state: "{{ asgweb_service_state }}"
 
   - name: Delete EC2 keypair
     local_action:
       module: ec2_key
       name: "{{ ec2_key_name }}"
       region: "{{ vpc_region }}"
-      state: "{{ service_state }}"
+      state: "{{ asgweb_service_state }}"
     when: manage_ec2_keypair
 
   - name: Delete instance security group
@@ -174,12 +174,12 @@
       name: "{{ ec2_cluster_name }}_{{ service_env }}_instances"
       vpc_id: "{{ vpc_id }}"  # this comes from ec2-vpc
       region: "{{ vpc_region }}"
-      state: "{{ service_state }}"
+      state: "{{ asgweb_service_state }}"
 
   - name: Delete VPC
     include_role:
       name: inhumantsar.ec2-vpc
       vars:
-        service_state: "{{ service_state }}"
+        asgweb_service_state: "{{ asgweb_service_state }}"
     when: manage_vpc
-  when: "service_state == 'absent'"
+  when: "asgweb_service_state == 'absent'"

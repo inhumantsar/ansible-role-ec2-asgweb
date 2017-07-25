@@ -1,6 +1,6 @@
 ---
 service_env: 'dev'
-service_state: 'present'
+asgweb_service_state: 'present'
 
 vpc_cidr: '10.1.0.0/16'
 vpc_region: 'us-east-1'
