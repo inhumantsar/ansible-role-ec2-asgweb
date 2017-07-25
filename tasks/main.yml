@@ -94,6 +94,11 @@
     when: manage_elb
 
   # - debug: var=lb
+  - name: Set ELB list when ELB is managed
+    set_fact:
+      elb_name_list: ["{{ ec2_cluster_name }}-{{ service_env }}"]
+    when: manage_elb
+
 
   - name: Create autoscaling group
     ec2_asg:
@@ -102,9 +107,9 @@
       health_check_period: "{{ asg_health_check_period }}"
       health_check_type: "{{ asg_health_check_type }}"
       replace_all_instances: yes
-      load_balancers: ["{{ ec2_cluster_name }}-{{ service_env }}"]
       max_size: "{{ asg_max_size }}"
       min_size: "{{ asg_min_size }}"
+      load_balancers: "{{elb_name_list}}"
       desired_capacity: "{{ asg_desired_capacity }}"
       region: "{{ vpc_region }}"
     register: asg

@@ -1,2 +1,5 @@
 ---
-# vars file for dummy-role
+ssl_certs_common_name: "{{ elb_cert_domain }}"
+ssl_certs_path: "/tmp"
+ssl_certs_path_owner: "root"
+ssl_certs_path_group: "root"
