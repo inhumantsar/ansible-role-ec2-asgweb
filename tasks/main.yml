@@ -38,6 +38,7 @@
       region: "{{ vpc_region }}"
       security_groups: "{{ instance_sg_id }}"
       instance_type: "{{ ec2_instance_type }}"
+      assign_public_ip: "{{ ec2_assign_public_ip }}"
 
     register: lc
 

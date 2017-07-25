@@ -21,7 +21,7 @@ vpc_public_subnet_azs:
 ec2_cluster_name: 'asgwebtest'
 ec2_ami: 'ami-b63769a1'            # RHEL 7.3 in us-east-1
 ec2_instance_type: 't2.micro'
-ec2_assign_public_ip: 'yes'
+ec2_assign_public_ip: 'no'
 ec2_host_port: 80                  # mostly used to inform defaults
 
 manage_ec2_keypair: true           # set to false to prevent create/delete of key
