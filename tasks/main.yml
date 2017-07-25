@@ -38,6 +38,7 @@
       region: "{{ vpc_region }}"
       security_groups: "{{ instance_sg_id }}"
       instance_type: "{{ ec2_instance_type }}"
+
     register: lc
 
   - name: Generate self-signed certificate
@@ -112,6 +113,7 @@
       load_balancers: "{{elb_name_list}}"
       desired_capacity: "{{ asg_desired_capacity }}"
       region: "{{ vpc_region }}"
+      vpc_zone_identifier: "{{ vpc_public_subnets }}"
     register: asg
 
   when: "service_state != 'absent'"
