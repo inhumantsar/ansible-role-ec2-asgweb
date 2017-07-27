@@ -80,16 +80,7 @@
       subnets: "{{ vpc_public_subnets }}"
       state: present
       health_check: "{{ elb_health_check }}"
-      listeners:
-        - protocol: http
-          load_balancer_port: 80
-          instance_port: "{{ elb_host_port }}"
-          proxy_protocol: True
-        - protocol: https
-          load_balancer_port: 443
-          instance_protocol: http
-          instance_port: "{{ elb_host_port }}"
-          ssl_certificate_id: "{{ elb_cert_arn }}"
+      listeners: "{{ elb_listeners }}"
     register: lb
     when: manage_elb
 

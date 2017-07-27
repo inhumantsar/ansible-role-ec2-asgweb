@@ -31,6 +31,17 @@ elb_cert_arn: ''                  # must be set if manage_cert == false
 elb_host_port: '{{ec2_host_port}}'
 elb_name_list: []
 
+elb_listeners:
+  - protocol: http
+    load_balancer_port: 80
+    instance_port: "{{ elb_host_port }}"
+    proxy_protocol: True
+  - protocol: https
+    load_balancer_port: 443
+    instance_protocol: http
+    instance_port: "{{ elb_host_port }}"
+    ssl_certificate_id: "{{ elb_cert_arn }}"
+
 elb_health_check:
   ping_protocol: tcp
   ping_port: '{{ec2_host_port}}'
