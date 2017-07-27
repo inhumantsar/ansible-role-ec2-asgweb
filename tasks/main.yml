@@ -2,12 +2,6 @@
 
 # commissioning block
 - block:
-  - name: Create VPC with ec2-vpc role if create_vpc == True
-    include_role:
-      name: inhumantsar.ec2-vpc
-    when: manage_vpc
-
-  - debug: var=vpc_id
 
   - name: Create instance security group
     local_action:
@@ -107,7 +101,8 @@
 
 
   - name: Create autoscaling group
-    ec2_asg:
+    local_action:
+      module: ec2_asg
       name: "{{ ec2_cluster_name }}_{{ service_env }}"
       launch_config_name: "{{ ec2_cluster_name }}_{{ service_env }}"
       health_check_period: "{{ asg_health_check_period }}"
