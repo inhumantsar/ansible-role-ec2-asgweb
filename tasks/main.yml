@@ -1,8 +1,6 @@
 ---
-
 # commissioning block
 - block:
-
   - name: Create instance security group
     local_action:
       module: ec2_group
@@ -165,11 +163,4 @@
       vpc_id: "{{ vpc_id }}"  # this comes from ec2-vpc
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
-
-  - name: Delete VPC
-    include_role:
-      name: inhumantsar.ec2-vpc
-      vars:
-        service_state: "{{ asgweb_service_state }}"
-    when: manage_vpc
   when: "asgweb_service_state == 'absent'"
