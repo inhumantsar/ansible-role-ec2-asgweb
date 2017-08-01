@@ -8,20 +8,26 @@ vpc_id: ''                        # must be set when manage_vpc == false
 vpc_public_subnets: []            #            ^ ditto ^
 
 ec2_cluster_name: 'asgwebtest'
-ec2_ami: 'ami-b63769a1'            # RHEL 7.3 in us-east-1
+ec2_ami: 'ami-a4c7edb2'            # Amazon Linux 2017.03.1.20170623 in us-east-1
 ec2_instance_type: 't2.micro'
 ec2_assign_public_ip: 'no'
 ec2_host_port: 80                  # mostly used to inform defaults
-ec2_instance_profile_name: ''
+# ec2_instance_profile_name: ''    # left undef so default(omit) can work
 
 manage_ec2_keypair: true           # set to false to prevent create/delete of key
 ec2_key_name: 'asgwebtest'
 
 asg_health_check_period: 60
-asg_health_check_type: 'ELB'
+asg_health_check_type: 'EC2'
 asg_max_size: 1
 asg_min_size: 1
 asg_desired_capacity: 1
+
+# manage_hours sets up scheduled tasks to power down the cluster
+# outside of the hours set here. (power down == (set desired capacity = 0))
+asg_manage_hours: true
+asg_hours_startup_cron: '0 14 * * MON-FRI'
+asg_hours_shutdown_cron: '0 2 * * TUE-SAT'
 
 # note that these certs are stored in IAM
 manage_elb: true
@@ -42,14 +48,17 @@ elb_listeners:
     instance_port: "{{ elb_host_port }}"
     ssl_certificate_id: "{{ elb_cert_arn }}"
 
+# set `asg_health_check_type` = 'ELB' and set a var like this
 elb_health_check:
   ping_protocol: tcp
-  ping_port: '{{ec2_host_port}}'
-  # ping_path: "/" # only required for http/https
+  ping_port: 22
+  # ping_protocol: http
+  # ping_port: '{{ec2_host_port}}'
+  # ping_path: "/"    # only required for http/https
   response_timeout: 5
-  interval: 30
-  unhealthy_threshold: 2
-  healthy_threshold: 10
+  interval: 10
+  unhealthy_threshold: 10
+  healthy_threshold: 2
 
 # security group rules
 instance_sg_rules:
