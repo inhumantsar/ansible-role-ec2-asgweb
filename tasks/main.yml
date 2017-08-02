@@ -107,7 +107,7 @@
       module: ec2_asg
       name: "{{ ec2_cluster_name }}_{{ service_env }}"
       launch_config_name: "{{ ec2_cluster_name }}_{{ service_env }}"
-      health_check_period: "{{ asg_health_check_period }}"
+      health_check_period: "{{ asg_health_check_period }}" # GRACE period.
       health_check_type: "{{ asg_health_check_type }}"
       replace_all_instances: yes
       max_size: "{{ asg_max_size }}"
@@ -116,6 +116,7 @@
       desired_capacity: "{{ asg_desired_capacity }}"
       region: "{{ vpc_region }}"
       vpc_zone_identifier: "{{ vpc_public_subnets }}"
+      wait_timeout: "{{ asg_health_check_timeout }}"
     register: asg
 
   - name: Get start date for asg startup task

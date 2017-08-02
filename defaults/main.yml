@@ -17,7 +17,8 @@ ec2_host_port: 80                  # mostly used to inform defaults
 manage_ec2_keypair: true           # set to false to prevent create/delete of key
 ec2_key_name: 'asgwebtest'
 
-asg_health_check_period: 60
+asg_health_check_period: 60        # GRACE period.
+asg_health_check_timeout: 300
 asg_health_check_type: 'EC2'
 asg_max_size: 1
 asg_min_size: 1
