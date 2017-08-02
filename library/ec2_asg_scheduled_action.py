@@ -75,7 +75,7 @@ except ImportError:
 from dateutil.tz import tzutc
 import datetime
 
-import q
+# import q
 
 
 def format_request(module):
@@ -109,7 +109,7 @@ def describe_scheduled_actions(client, module):
             AutoScalingGroupName=module.params.get('autoscaling_group_name'),
             ScheduledActionNames=[module.params.get('scheduled_action_name')]
         )
-        q(actions['ScheduledUpdateGroupActions'][0])
+        # q(actions['ScheduledUpdateGroupActions'][0])
     except botocore.exceptions.ClientError as e:
         pass
     except IndexError as e:
@@ -120,8 +120,8 @@ def describe_scheduled_actions(client, module):
 def put_scheduled_update_group_action(client, module):
     changed = False
     params = format_request(module)
-    q(params)
-    q("                       ")
+    # q(params)
+    # q("                       ")
     exists = describe_scheduled_actions(client, module)
 
     try:
@@ -147,7 +147,7 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec)
     state = module.params.get('state').lower()
-    q(state)
+    # q(state)
 
     if not HAS_BOTO3:
         module.fail_json(msg='json and boto3 are required.')
