@@ -198,6 +198,13 @@
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
     when: manage_ec2_keypair
+    
+  - name: Delete SSL certificate
+    local_action:
+      module: iam_cert
+      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      state: absent
+    when: manage_cert
 
   - name: Delete instance security group
     local_action:
@@ -205,12 +212,5 @@
       name: "{{ ec2_cluster_name }}_{{ service_env }}_instances"
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
-
-  - name: Delete SSL certificate
-    local_action:
-      module: iam_cert
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
-      state: absent
-    when: manage_cert
 
   when: "asgweb_service_state == 'absent'"
