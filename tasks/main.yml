@@ -92,6 +92,7 @@
       state: present
       health_check: "{{ elb_health_check|default(omit) }}"
       listeners: "{{ elb_listeners }}"
+      security_group_ids: "{{ instance_sg_id }}"
     register: lb
     when: manage_elb
 
