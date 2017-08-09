@@ -75,20 +75,20 @@
       module: ec2_vpc_subnet_facts
       region: "{{ vpc_region }}"
     register: vpc_subnet_facts
-    when: 'not vpc_public_subnets'
+    when: 'not vpc_subnets'
 
   - set_fact:
-      vpc_public_subnets: "{{ vpc_subnet_facts.subnets|map(attribute='id')|list }}"
-    when: 'not vpc_public_subnets'
+      vpc_subnets: "{{ vpc_subnet_facts.subnets|map(attribute='id')|list }}"
+    when: 'not vpc_subnets'
 
-  - debug: var=vpc_public_subnets
+  - debug: var=vpc_subnets
 
   - name: create load balancer
     local_action:
       module: ec2_elb_lb
       name: "{{ ec2_cluster_name }}-{{ service_env }}" # ELBs can't have underscores
       region: "{{ vpc_region }}"
-      subnets: "{{ vpc_public_subnets }}"
+      subnets: "{{ vpc_subnets }}"
       state: present
       health_check: "{{ elb_health_check|default(omit) }}"
       listeners: "{{ elb_listeners }}"
@@ -116,7 +116,7 @@
       load_balancers: "{{elb_name_list}}"
       desired_capacity: "{{ asg_desired_capacity }}"
       region: "{{ vpc_region }}"
-      vpc_zone_identifier: "{{ vpc_public_subnets }}"
+      vpc_zone_identifier: "{{ vpc_subnets }}"
       wait_timeout: "{{ asg_health_check_timeout }}"
     register: asg
 
@@ -198,7 +198,7 @@
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
     when: manage_ec2_keypair
-    
+
   - name: Delete SSL certificate
     local_action:
       module: iam_cert
