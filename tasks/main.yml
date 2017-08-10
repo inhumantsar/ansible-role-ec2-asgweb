@@ -24,7 +24,7 @@
     when: "manage_ec2_keypair == true"
 
   - name: Give AWS a few seconds to full register the new keypair
-    pause: seconds=10h
+    pause: seconds=10
 
   - name: Create launch config
     local_action:
