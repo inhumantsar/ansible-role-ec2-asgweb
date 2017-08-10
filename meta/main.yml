@@ -53,6 +53,4 @@ galaxy_info:
     - elb
     - asg
 
-dependencies:
-  - inhumantsar.ec2-vpc
-  - jdauphant.ssl-certs
+dependencies: []
