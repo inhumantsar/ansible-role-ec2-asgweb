@@ -23,6 +23,9 @@
       region: "{{ vpc_region }}"
     when: "manage_ec2_keypair == true"
 
+  - name: Give AWS a few seconds to full register the new keypair
+    pause: seconds=10h
+
   - name: Create launch config
     local_action:
       module: ec2_lc
@@ -34,7 +37,6 @@
       instance_type: "{{ ec2_instance_type }}"
       assign_public_ip: "{{ ec2_assign_public_ip }}"
       instance_profile_name: "{{ ec2_instance_profile_name | default(omit) }}"
-
     register: lc
 
   - name: Generate self-signed certificate
@@ -70,25 +72,12 @@
       elb_cert_arn: "arn:aws:iam::{{ aws_account_id.stdout }}:server-certificate/{{ ec2_cluster_name }}_{{ service_env }}"
     when: manage_cert
 
-  - name: get subnet IDs when subnets not provided
-    local_action:
-      module: ec2_vpc_subnet_facts
-      region: "{{ vpc_region }}"
-    register: vpc_subnet_facts
-    when: 'not vpc_subnets'
-
-  - set_fact:
-      vpc_subnets: "{{ vpc_subnet_facts.subnets|map(attribute='id')|list }}"
-    when: 'not vpc_subnets'
-
-  - debug: var=vpc_subnets
-
   - name: create load balancer
     local_action:
       module: ec2_elb_lb
       name: "{{ ec2_cluster_name }}-{{ service_env }}" # ELBs can't have underscores
       region: "{{ vpc_region }}"
-      subnets: "{{ vpc_subnets }}"
+      subnets: "{{ elb_subnets }}"
       state: present
       health_check: "{{ elb_health_check|default(omit) }}"
       listeners: "{{ elb_listeners }}"
@@ -116,7 +105,7 @@
       load_balancers: "{{elb_name_list}}"
       desired_capacity: "{{ asg_desired_capacity }}"
       region: "{{ vpc_region }}"
-      vpc_zone_identifier: "{{ vpc_subnets }}"
+      vpc_zone_identifier: "{{ asg_subnets }}"
       wait_timeout: "{{ asg_health_check_timeout }}"
     register: asg
 

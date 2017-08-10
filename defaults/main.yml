@@ -5,7 +5,8 @@ asgweb_service_state: 'present'
 vpc_cidr: '10.1.0.0/16'
 vpc_region: 'us-east-1'
 vpc_id: ''                        # must be set when manage_vpc == false
-vpc_subnets: []                   #            ^ ditto ^
+elb_subnets: []                   #            ^ ditto ^
+asg_subnets: []                   #            ^ ditto ^
 
 ec2_cluster_name: 'asgwebtest'
 ec2_ami: 'ami-a4c7edb2'            # Amazon Linux 2017.03.1.20170623 in us-east-1
