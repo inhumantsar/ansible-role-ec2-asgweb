@@ -4,7 +4,7 @@
   - name: Create instance security group
     local_action:
       module: ec2_group
-      name: "{{ ec2_cluster_name }}_{{ service_env }}_instances"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_instances"
       vpc_id: "{{ vpc_id | default(omit) }}"
       region: "{{vpc_region }}"
       rules: "{{ instance_sg_rules }}"
@@ -29,7 +29,7 @@
   - name: Create launch config
     local_action:
       module: ec2_lc
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       image_id: "{{ ec2_ami }}"
       key_name: "{{ ec2_key_name }}"
       region: "{{ vpc_region }}"
@@ -47,7 +47,7 @@
   - name: Create SSL certificate
     local_action:
       module: iam_cert
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       cert: "/tmp/{{elb_cert_domain}}.pem"
       key: "/tmp/{{elb_cert_domain}}.key"
       # cert_chain: "/tmp/{{elb_cert_domain}}"
@@ -69,13 +69,13 @@
 
   - name: Build cert arn
     set_fact:
-      elb_cert_arn: "arn:aws:iam::{{ aws_account_id.stdout }}:server-certificate/{{ ec2_cluster_name }}_{{ service_env }}"
+      elb_cert_arn: "arn:aws:iam::{{ aws_account_id.stdout }}:server-certificate/{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
     when: manage_cert
 
   - name: create load balancer
     local_action:
       module: ec2_elb_lb
-      name: "{{ ec2_cluster_name }}-{{ service_env }}" # ELBs can't have underscores
+      name: "{{ ec2_cluster_name }}-{{ asgweb_service_env }}" # ELBs can't have underscores
       region: "{{ vpc_region }}"
       subnets: "{{ elb_subnets }}"
       state: present
@@ -88,15 +88,15 @@
   # - debug: var=lb
   - name: Set ELB list when ELB is managed
     set_fact:
-      elb_name_list: ["{{ ec2_cluster_name }}-{{ service_env }}"]
+      elb_name_list: ["{{ ec2_cluster_name }}-{{ asgweb_service_env }}"]
     when: manage_elb
 
 
   - name: Create autoscaling group
     local_action:
       module: ec2_asg
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
-      launch_config_name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
+      launch_config_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       health_check_period: "{{ asg_health_check_period }}" # GRACE period.
       health_check_type: "{{ asg_health_check_type }}"
       replace_all_instances: yes
@@ -129,8 +129,8 @@
     local_action:
       module: ec2_asg_scheduled_action
       region: "{{ vpc_region }}"
-      autoscaling_group_name: "{{ ec2_cluster_name }}_{{ service_env }}"
-      scheduled_action_name: "{{ ec2_cluster_name }}_{{ service_env }}_startup"
+      autoscaling_group_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
+      scheduled_action_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_startup"
       recurrence: "{{ asg_hours_startup_cron }}"
       start_time: "{{ asg_hours_startup_start_time.stdout }}"
       end_time: "{{ asg_hours_startup_end_time.stdout }}"
@@ -142,8 +142,8 @@
     local_action:
       module: ec2_asg_scheduled_action
       region: "{{ vpc_region }}"
-      autoscaling_group_name: "{{ ec2_cluster_name }}_{{ service_env }}"
-      scheduled_action_name: "{{ ec2_cluster_name }}_{{ service_env }}_shutdown"
+      autoscaling_group_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
+      scheduled_action_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_shutdown"
       recurrence: "{{ asg_hours_shutdown_cron }}"
       start_time: "{{ asg_hours_shutdown_start_time.stdout }}"
       end_time: "{{ asg_hours_shutdown_end_time.stdout }}"
@@ -160,7 +160,7 @@
   - name: Delete autoscaling group
     local_action:
       module: ec2_asg
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
     register: asg
@@ -168,14 +168,14 @@
   - name: Delete load balancer
     local_action:
       module: ec2_elb_lb
-      name: "{{ ec2_cluster_name }}-{{ service_env }}" # ELBs can't have underscores
+      name: "{{ ec2_cluster_name }}-{{ asgweb_service_env }}" # ELBs can't have underscores
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
 
   - name: Delete launch config
     local_action:
       module: ec2_lc
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       region: "{{ vpc_region }}"
       image_id: "{{ ec2_ami }}"
       state: "{{ asgweb_service_state }}"
@@ -191,14 +191,14 @@
   - name: Delete SSL certificate
     local_action:
       module: iam_cert
-      name: "{{ ec2_cluster_name }}_{{ service_env }}"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       state: absent
     when: manage_cert
 
   - name: Delete instance security group
     local_action:
       module: ec2_group
-      name: "{{ ec2_cluster_name }}_{{ service_env }}_instances"
+      name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_instances"
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
 
