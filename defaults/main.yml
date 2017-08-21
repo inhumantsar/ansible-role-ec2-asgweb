@@ -1,5 +1,5 @@
 ---
-service_env: 'dev'
+asgweb_service_env: 'dev'
 asgweb_service_state: 'present'
 
 vpc_cidr: '10.1.0.0/16'
