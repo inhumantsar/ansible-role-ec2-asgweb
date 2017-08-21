@@ -53,6 +53,7 @@
       # cert_chain: "/tmp/{{elb_cert_domain}}"
       state: present
     when: manage_cert
+    ignore_errors: yes
 
   - name: give aws a little time to register this cert
     pause: seconds=30
