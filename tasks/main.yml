@@ -128,12 +128,12 @@
 
   - name: Add a day to startup start date if it is in the past
     set_fact:
-      asg_hours_startup_start_time: "{{ asg_hours_startup_start_time + 86400 }}"
+      asg_hours_startup_start_time: "{{ asg_hours_startup_start_time|int + 86400 }}"
     when: asg_hours_startup_start_time < ansible_date_time.epoch
 
   - name: Add a day to shutdown start date if it is in the past
     set_fact:
-      asg_hours_shutdown_start_time: "{{ asg_hours_shutdown_start_time + 86400 }}"
+      asg_hours_shutdown_start_time: "{{ asg_hours_shutdown_start_time|int + 86400 }}"
     when: asg_hours_startup_start_time.stdout < ansible_date_time.epoch
 
 
@@ -152,8 +152,8 @@
       autoscaling_group_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       scheduled_action_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_startup"
       recurrence: "{{ asg_hours_startup_cron }}"
-      start_time: "{{ asg_hours_startup_start_time.stdout }}"
-      end_time: "{{ asg_hours_startup_end_time.stdout }}"
+      start_time: "{{ asg_hours_startup_start_time }}"
+      end_time: "{{ asg_hours_startup_end_time }}"
       min_size: "{{ asg_max_size }}"
       max_size: "{{ asg_min_size }}"
       desired_capacity: "{{ asg_desired_capacity }}"
@@ -165,8 +165,8 @@
       autoscaling_group_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}"
       scheduled_action_name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_shutdown"
       recurrence: "{{ asg_hours_shutdown_cron }}"
-      start_time: "{{ asg_hours_shutdown_start_time.stdout }}"
-      end_time: "{{ asg_hours_shutdown_end_time.stdout }}"
+      start_time: "{{ asg_hours_shutdown_start_time }}"
+      end_time: "{{ asg_hours_shutdown_end_time }}"
       min_size: 0
       max_size: 0
       desired_capacity: 0
