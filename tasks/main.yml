@@ -107,7 +107,7 @@
       desired_capacity: "{{ asg_desired_capacity }}"
       region: "{{ vpc_region }}"
       vpc_zone_identifier: "{{ asg_subnets }}"
-      wait_timeout: "{{ asg_health_check_timeout }}"
+      wait_timeout: "600"
     register: asg
 
   - name: Get start date for asg startup task (today at asg_hours_startup_hour)
@@ -225,5 +225,6 @@
       name: "{{ ec2_cluster_name }}_{{ asgweb_service_env }}_instances"
       region: "{{ vpc_region }}"
       state: "{{ asgweb_service_state }}"
+    ignore_errors: yes
 
   when: "asgweb_service_state == 'absent'"
