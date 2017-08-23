@@ -118,6 +118,9 @@
     shell: date -d "$(date +'%D') {{ asg_hours_shutdown_hour }} UTC" '+%s'
     register: asg_hours_shutdown_start_time
 
+  - debug: var=asg_hours_startup_start_time
+  - debug: var=ansible_date_time.epoch
+
   - name: Add a day to startup start date if it is in the past
     set_fact:
       asg_hours_startup_start_time: "{{ asg_hours_startup_start_time + 86400 }}"
@@ -127,6 +130,7 @@
     set_fact:
       asg_hours_shutdown_start_time: "{{ asg_hours_shutdown_start_time + 86400 }}"
     when: asg_hours_startup_start_time < ansible_date_time.epoch
+
 
   - name: Get end date for asg startup task
     shell: date -d '+1 year' '+%s'
