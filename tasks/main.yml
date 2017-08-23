@@ -136,7 +136,6 @@
       asg_hours_shutdown_start_time: "{{ asg_hours_shutdown_start_time|int + 86400 }}"
     when: asg_hours_startup_start_time < ansible_date_time.epoch
 
-
   - name: Get end date for asg startup task
     shell: date -d '+1 year' '+%s'
     register: asg_hours_startup_end_time
@@ -144,6 +143,11 @@
   - name: Get end date for asg shutdown task
     shell: date -d '+1 year 1 minute' '+%s'
     register: asg_hours_shutdown_end_time
+
+  - name: Do a set_fact to strip out metadata
+    set_fact:
+      asg_hours_startup_end_time: "{{asg_hours_startup_end_time.stdout}}"
+      asg_hours_shutdown_end_time: "{{asg_hours_shutdown_end_time.stdout}}"
 
   - name: Create startup task for asg
     local_action:
