@@ -120,8 +120,8 @@
 
   - name: Do a set_fact to strip out metadata
     set_fact:
-      asg_hours_startup_start_time: {{asg_hours_startup_start_time.stdout}}
-      asg_hours_shutdown_start_time: {{asg_hours_shutdown_start_time.stdout}}
+      asg_hours_startup_start_time: "{{asg_hours_startup_start_time.stdout}}"
+      asg_hours_shutdown_start_time: "{{asg_hours_shutdown_start_time.stdout}}"
 
   - debug: var=asg_hours_startup_start_time
   - debug: var=ansible_date_time.epoch
