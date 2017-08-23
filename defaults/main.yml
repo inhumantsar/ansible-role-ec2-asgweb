@@ -28,8 +28,10 @@ asg_desired_capacity: 1
 # manage_hours sets up scheduled tasks to power down the cluster
 # outside of the hours set here. (power down == (set desired capacity = 0))
 asg_manage_hours: true
-asg_hours_startup_cron: '0 14 * * MON-FRI'
-asg_hours_shutdown_cron: '0 2 * * TUE-SAT'
+asg_hours_startup_hour: '14' # used to build the time for first run
+asg_hours_shutdown_hour: '2' # used to build the time for first run
+asg_hours_startup_cron: '0 {{ asg_hours_startup_hour }} * * MON-FRI'
+asg_hours_shutdown_cron: '0 {{ asg_hours_shutdown_hour }} * * TUE-SAT'
 
 # note that these certs are stored in IAM
 manage_elb: true

@@ -110,13 +110,23 @@
       wait_timeout: "{{ asg_health_check_timeout }}"
     register: asg
 
-  - name: Get start date for asg startup task
-    shell: date -d '+5 minutes' '+%s'
+  - name: Get start date for asg startup task (today at asg_hours_startup_hour)
+    shell: date -d "$(date +'%D') {{ asg_hours_startup_hour }} UTC" '+%s'
     register: asg_hours_startup_start_time
 
-  - name: Get start date for asg shutdown task
-    shell: date -d '+6 minutes' '+%s'
+  - name: Get start date for asg shutdown task (today at asg_hours_shutdown_hour)
+    shell: date -d "$(date +'%D') {{ asg_hours_shutdown_hour }} UTC" '+%s'
     register: asg_hours_shutdown_start_time
+
+  - name: Add a day to startup start date if it is in the past
+    set_fact:
+      asg_hours_startup_start_time: "{{ asg_hours_startup_start_time + 86400 }}"
+    when: asg_hours_startup_start_time < ansible_date_time.epoch
+
+  - name: Add a day to shutdown start date if it is in the past
+    set_fact:
+      asg_hours_shutdown_start_time: "{{ asg_hours_shutdown_start_time + 86400 }}"
+    when: asg_hours_startup_start_time < ansible_date_time.epoch
 
   - name: Get end date for asg startup task
     shell: date -d '+1 year' '+%s'
