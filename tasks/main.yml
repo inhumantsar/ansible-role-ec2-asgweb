@@ -134,7 +134,7 @@
   - name: Add a day to shutdown start date if it is in the past
     set_fact:
       asg_hours_shutdown_start_time: "{{ asg_hours_shutdown_start_time|int + 86400 }}"
-    when: asg_hours_startup_start_time < ansible_date_time.epoch
+    when: asg_hours_shutdown_start_time < ansible_date_time.epoch
 
   - name: Get end date for asg startup task
     shell: date -d '+1 year' '+%s'
