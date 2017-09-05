@@ -1,4 +1,10 @@
 ---
+- name: Ensure Python requirements are installed (see requirements.txt)
+  local_action:
+    module: pip
+    requirements: "{{ role_path }}/requirements.txt"
+    state: present
+
 # commissioning block
 - block:
   - name: Create instance security group
