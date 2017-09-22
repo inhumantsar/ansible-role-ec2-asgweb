@@ -1,12 +1,13 @@
 ---
 asgweb_service_env: 'dev'
 asgweb_service_state: 'present'
+asgweb_test: false # only used during testing
 
-vpc_cidr: '10.1.0.0/16'
 vpc_region: 'us-east-1'
-vpc_id: ''                        # must be set when manage_vpc == false
-elb_subnets: []                   #            ^ ditto ^
-asg_subnets: []                   #            ^ ditto ^
+vpc_id: ''                        # must be set
+vpc_cidr: ''                      #  ^ ditto ^
+elb_subnets: []                   #  ^ ditto ^
+asg_subnets: []                   #  ^ ditto ^
 
 ec2_cluster_name: 'asgwebtest'
 ec2_ami: 'ami-a4c7edb2'            # Amazon Linux 2017.03.1.20170623 in us-east-1
@@ -24,6 +25,9 @@ asg_health_check_type: 'EC2'
 asg_max_size: 1
 asg_min_size: 1
 asg_desired_capacity: 1
+asg_instance_tags:
+  - Name: asg_instance
+    propagate_at_launch: true
 
 # manage_hours sets up scheduled tasks to power down the cluster
 # outside of the hours set here. (power down == (set desired capacity = 0))
