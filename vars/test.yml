@@ -1,0 +1,9 @@
+vpc_region: 'us-west-2'
+vpc_cidr: '10.0.0.0/8'
+vpc_id: 'vpc-905af3f6'
+elb_subnets:
+  - 'subnet-ef3528a6'     # attach to public subnet
+asg_subnets:
+  - 'subnet-2d312c64'     # attach to private subnet
+asgweb_test: true
+ec2_ami: 'ami-6df1e514'   # amzn linux in us-west-2

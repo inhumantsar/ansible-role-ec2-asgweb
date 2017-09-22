@@ -4,6 +4,8 @@
     module: pip
     requirements: "{{ role_path }}/requirements.txt"
     state: present
+  when:
+    - "not asgweb_test"
 
 # commissioning block
 - block:
@@ -114,6 +116,7 @@
       region: "{{ vpc_region }}"
       vpc_zone_identifier: "{{ asg_subnets }}"
       wait_timeout: "600"
+      tags: "{{ asg_instance_tags }}"
     register: asg
 
   - name: Get start date for asg startup task (today at asg_hours_startup_hour)
